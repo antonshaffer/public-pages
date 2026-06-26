@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MFA Rollout — Phase Summary</title>
+<meta name="description" content="Mandatory MFA rollout plan for OSCAR Pro Auth users — phased approach supporting compliance, security, and minimal clinic disruption.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Oscar DS tokens (inline subset) ── */
+  :root {
+    --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+    --bg:          #F4F8FA;
+    --white:       #ffffff;
+    --title:       #2C486E;
+    --body:        #485566;
+    --secondary:   #62748C;
+    --stroke:      #D3DBE5;
+    --stroke-lt:   #F0F4F8;
+    --row-fill:    #EEF1F6;
+
+    --shadow-card: 0 1px 2px rgba(44,72,110,0.18), 0 0 0 1px #D3DBE5;
+
+    /* phase accent hues */
+    --ph1: #62748C;
+    --ph2: #227E69;
+    --ph3: #1A4E96;
+    --ph4: #A04800;
+    --ph5: #2C486E;
+    --ph6: #0B7285;
+
+    /* tag fills */
+    --tag-internal-bg:  #F0F2F5; --tag-internal-text: #62748C; --tag-internal-bd: #D8DCE4;
+    --tag-pendo-bg:     #E4F2EC; --tag-pendo-text:    #196B55; --tag-pendo-bd:   #C5E0D4;
+    --tag-email-bg:     #EEF1F6; --tag-email-text:    #2C486E; --tag-email-bd:   #D3DBE5;
+    --tag-cs-bg:        #FFF3E0; --tag-cs-text:       #A04800; --tag-cs-bd:      #FDDCB0;
+    --tag-eng-bg:       #EEF1F6; --tag-eng-text:      #2C486E; --tag-eng-bd:     #D3DBE5;
+    --tag-support-bg:   #F0F2F5; --tag-support-text:  #62748C; --tag-support-bd: #D8DCE4;
+  }
+
+  /* ── Base ── */
+  html, body {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--body);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Page shell ── */
+  .page {
+    min-height: 100vh;
+    padding: 40px 48px 80px;
+  }
+
+  .inner {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ── Page header ── */
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .page-header__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 24px;
+  }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--title);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .status-block {
+    text-align: right;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+
+  .status-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .status-pill {
+    display: inline-block;
+    background: #FFF3E0;
+    color: #A04800;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid #FDDCB0;
+  }
+
+  /* ── Goal callout ── */
+  .goal-callout {
+    border-left: 4px solid var(--title);
+    padding: 12px 20px;
+    background: var(--row-fill);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .goal-callout__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--title);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .goal-callout__body {
+    font-size: 15px;
+    color: var(--body);
+    line-height: 1.6;
+    max-width: 80ch;
+  }
+
+  /* ── Phase grid ── */
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* ── Phase card ── */
+  .card {
+    background: var(--white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card__header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card__phase-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .card__phase-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .card__num {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    flex-shrink: 0;
+  }
+
+  .card__body {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card__subtitle {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .card__desc {
+    font-size: 12px;
+    color: var(--body);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  /* ── Bullet list ── */
+  .bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    list-style: none;
+  }
+
+  .bullets li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .bullet-dot {
+    width: 4px;
+    height: 4px;
+    min-width: 4px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .bullet-text {
+    font-size: 11px;
+    color: var(--body);
+    line-height: 1.5;
+  }
+
+  /* ── Tag row ── */
+  .tags {
+    border-top: 1px solid var(--stroke-lt);
+    padding-top: 12px;
+    margin-top: 16px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid;
+    letter-spacing: 0.01em;
+  }
+
+  .tag--internal { background: var(--tag-internal-bg); color: var(--tag-internal-text); border-color: var(--tag-internal-bd); }
+  .tag--pendo    { background: var(--tag-pendo-bg);    color: var(--tag-pendo-text);    border-color: var(--tag-pendo-bd); }
+  .tag--email    { background: var(--tag-email-bg);    color: var(--tag-email-text);    border-color: var(--tag-email-bd); }
+  .tag--cs       { background: var(--tag-cs-bg);       color: var(--tag-cs-text);       border-color: var(--tag-cs-bd); }
+  .tag--eng      { background: var(--tag-eng-bg);      color: var(--tag-eng-text);      border-color: var(--tag-eng-bd); }
+  .tag--support  { background: var(--tag-support-bg);  color: var(--tag-support-text);  border-color: var(--tag-support-bd); }
+
+  /* ── Phase colour skins ── */
+  .card--ph1 .card__header { background: var(--ph1); }
+  .card--ph1 .card__subtitle { color: var(--ph1); }
+  .card--ph1 .bullet-dot { background: var(--ph1); }
+
+  .card--ph2 .card__header { background: var(--ph2); }
+  .card--ph2 .card__subtitle { color: var(--ph2); }
+  .card--ph2 .bullet-dot { background: var(--ph2); }
+
+  .card--ph3 .card__header { background: var(--ph3); }
+  .card--ph3 .card__subtitle { color: var(--ph3); }
+  .card--ph3 .bullet-dot { background: var(--ph3); }
+
+  .card--ph4 .card__header { background: var(--ph4); }
+  .card--ph4 .card__subtitle { color: var(--ph4); }
+  .card--ph4 .bullet-dot { background: var(--ph4); }
+
+  .card--ph5 .card__header { background: var(--ph5); }
+  .card--ph5 .card__subtitle { color: var(--ph5); }
+  .card--ph5 .bullet-dot { background: var(--ph5); }
+
+  .card--ph6 .card__header { background: var(--ph6); }
+  .card--ph6 .card__subtitle { color: var(--ph6); }
+  .card--ph6 .bullet-dot { background: var(--ph6); }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .phases { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .page { padding: 24px 20px 60px; }
+    .page-header__top { flex-direction: column; }
+    .status-block { text-align: left; }
+    .phases { grid-template-columns: 1fr; }
+    .page-title { font-size: 24px; }
+  }
+
+  /* ── Focus ── */
+  :focus-visible { outline: 2px solid #2DB898; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="inner">
+
+    <!-- Page header -->
+    <header class="page-header">
+      <div class="page-header__top">
+        <h1 class="page-title">Mandatory MFA Rollout Plan</h1>
+        <div class="status-block">
+          <div class="status-label">Status</div>
+          <div class="status-pill">Draft · June 2026</div>
+        </div>
+      </div>
+      <div class="goal-callout">
+        <div class="goal-callout__eyebrow">Goal of this plan</div>
+        <p class="goal-callout__body">Make MFA mandatory for OSCAR Pro Auth users in a controlled, staged way that supports compliance and security requirements — while minimizing clinic disruption, Support volume, and avoidable login issues.</p>
+      </div>
+    </header>
+
+    <!-- Phase cards -->
+    <div class="phases">
+
+      <!-- Phase 1 -->
+      <div class="card card--ph1">
+        <div class="card__header">
+          <div>
+            <div class="card__phase-label">Phase 1</div>
+            <div class="card__phase-name">Pre-Launch</div>
+          </div>
+          <div class="card__num">1</div>
+        </div>
+        <div class="card__body">
+          <div class="card__subtitle">Readiness &amp; Dependencies</div>
+          <p class="card__desc">Confirm operational readiness before any external timelines are communicated. All teams aligned on MFA approach, recovery flows, edge cases, and support processes.</p>
+          <ul class="bullets">
+            <li><span class="bullet-dot"></span><span class="bullet-text">MFA policy approved by Security, Compliance, Product, Support &amp; Eng</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Acceptable MFA factors confirmed; recovery flows for edge cases</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Support runbooks, macros, escalation paths, and FAQs built</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Reporting requirements and baseline metrics defined</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag tag--internal">Internal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="card card--ph2">
+        <div class="card__header">
+          <div>
+            <div class="card__phase-label">Phase 2</div>
+            <div class="card__phase-name">Early Awareness</div>
+          </div>
+          <div class="card__num">2</div>
+        </div>
+        <div class="card__body">
+          <div class="card__subtitle">Soft Announcement → First Formal Announcement</div>
+          <p class="card__desc">Soft Pendo survey gathers readiness data and flags risk clinics. First formal Pendo + email announcement sets the expectation: MFA is mandatory — enable now to transition on your own timeline.</p>
+          <ul class="bullets">
+            <li><span class="bullet-dot"></span><span class="bullet-text">Pendo soft message: MFA is coming, time to prepare</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Readiness survey: individual emails, shared logins, device access</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">First formal announcement via Pendo + email newsletter</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Links to MFA setup docs and available factor options</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag tag--pendo">Pendo</span>
+            <span class="tag tag--email">Email</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="card card--ph3">
+        <div class="card__header">
+          <div>
+            <div class="card__phase-label">Phase 3</div>
+            <div class="card__phase-name">Voluntary Period</div>
+          </div>
+          <div class="card__num">3</div>
+        </div>
+        <div class="card__body">
+          <div class="card__subtitle">Voluntary Enablement &amp; Monitoring</div>
+          <p class="card__desc">Clinics self-enable MFA at their own pace. Product, Engineering, and Support monitor adoption trends, close runbook gaps, and provide targeted outreach to high-risk or not-yet-enabled clinics.</p>
+          <ul class="bullets">
+            <li><span class="bullet-dot"></span><span class="bullet-text">Track MFA enablement by clinic and user</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Monitor support volume: setup issues, lockouts, resets</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Adjust docs based on common confusion patterns</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Targeted outreach to non-enabled or at-risk clinics</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag tag--internal">Internal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 4 -->
+      <div class="card card--ph4">
+        <div class="card__header">
+          <div>
+            <div class="card__phase-label">Phase 4</div>
+            <div class="card__phase-name">Enforcement Prep</div>
+          </div>
+          <div class="card__num">4</div>
+        </div>
+        <div class="card__body">
+          <div class="card__subtitle">Enforcement Date → Final Reminder</div>
+          <p class="card__desc">Communicate the enforcement date and create urgency. Targeted reminders to non-enabled clinics via Pendo, email, and CS outreach.</p>
+          <ul class="bullets">
+            <li><span class="bullet-dot"></span><span class="bullet-text">Communicate enforcement date to users with clear instructions</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Final targeted outreach to non-enabled clinics and users</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Identify SMS-only and shared-login risks before go-live</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Confirm support staffing and exception / rollback process</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag tag--pendo">Pendo</span>
+            <span class="tag tag--email">Email</span>
+            <span class="tag tag--cs">CS Outreach</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 5 -->
+      <div class="card card--ph5">
+        <div class="card__header">
+          <div>
+            <div class="card__phase-label">Phase 5</div>
+            <div class="card__phase-name">Enforcement</div>
+          </div>
+          <div class="card__num">5</div>
+        </div>
+        <div class="card__body">
+          <div class="card__subtitle">Mandatory MFA Go-Live</div>
+          <p class="card__desc">Enable mandatory MFA for all Pro Auth users. Monitor sign-in failures, lockouts, and support volume closely. Escalate quickly. Apply exceptions only through the approved process.</p>
+          <ul class="bullets">
+            <li><span class="bullet-dot"></span><span class="bullet-text">Enable MFA requirement per the approved enforcement approach</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Monitor sign-in failures, lockouts, enrollment issues, tickets</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Escalate high-severity access issues quickly</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Apply exception process for approved edge cases only</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag tag--eng">Engineering</span>
+            <span class="tag tag--support">Support</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 6 -->
+      <div class="card card--ph6">
+        <div class="card__header">
+          <div>
+            <div class="card__phase-label">Phase 6</div>
+            <div class="card__phase-name">Post-Launch</div>
+          </div>
+          <div class="card__num">6</div>
+        </div>
+        <div class="card__body">
+          <div class="card__subtitle">Stabilization &amp; Optimization</div>
+          <p class="card__desc">Monitor post-enforcement metrics for several weeks. Update documentation, normalize support volume, reduce unnecessary SMS usage, and publish a final stakeholder summary with lessons learned.</p>
+          <ul class="bullets">
+            <li><span class="bullet-dot"></span><span class="bullet-text">Monitor enrollment, failed sign-ins, resets, and exceptions</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Review support ticket themes and update documentation</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Reduce SMS usage toward scalable, lower-cost options</span></li>
+            <li><span class="bullet-dot"></span><span class="bullet-text">Capture lessons learned · Publish final stakeholder summary</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag tag--internal">Internal</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+</body>
+</html>
